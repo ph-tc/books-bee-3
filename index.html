@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="ru">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
 	<title th:text="${isWebRequest} == false ? 'Подтверждение оплаты с баланса телефона' : 'Подтверждение оплаты с баланса телефона шаг 2 из 2'">Подтверждение оплаты с баланса телефона</title>
 	<meta th:if="${isWebRequest} == false" name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes"/>
 	<meta th:if="${isWebRequest} == false" name="MobileOptimized" content="width"/>
 	<meta th:if="${isWebRequest} == false" name="HandheldFriendly" content="true"/>
+
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<meta name="format-detection" content="telephone=no">
+	<meta name="format-detection" content="telephone=no" />
 	<title>КнигиОнлайн</title>
 	<style>
 		@font-face {
@@ -257,6 +257,10 @@
 			background-position: center;
 			background-repeat: no-repeat;
 			border: none;
+		}
+
+		.age-limit {
+			font-size: 0;
 		}
 
 		/*MAIN*/
@@ -666,33 +670,51 @@
 		.rules .inner {
 			position: relative;
 			padding: 2px;
-		}
-
-		.rules span,
-		.rules a {
-			display: block;
 			font-family: 'Open Sans', sans-serif;
 			font-weight: normal;
 			font-size: 16px;
 			line-height: 16px;
 			text-align: center;
-			color: #5e5656;
+			color: #222;
+			opacity: 0.6;
+		}
+
+		.footer-text {
+			text-align: center;
+		}
+
+		.rules div.footer-text:nth-child(2) span,
+		.rules div.footer-text:nth-child(2) a,
+		.rules a.footer-text {
+			display: block;
+		}
+
+		.rules span,
+		.rules a {
+			display: inline-block;
+			font-family: 'Open Sans', sans-serif;
+			font-weight: normal;
+			font-size: 16px;
+			line-height: 16px;
+			text-align: center;
+			color: #444;
 		}
 	</style>
+	<script src="http://cdp.beeline.ru/scripts/script.js"></script>
 </head>
 
 
-<body th:if="${isWebRequest} ==false" class="lbody" id="overflow">
+<body th:if="${isWebRequest} == false" class="background" id="resize">
 <form method="POST" action="/landing" th:attr="action=@{order.html(sessionId=${session_id})}" name="mainFrm">
 	<input type="hidden" name="requestId" th:value="${requestId}"/>
 	<input type="hidden" name="msisdn" th:value="${msisdn}"/>
 	<input type="hidden" name="repeatCode" value="false"/>
-<div class="header">
+<div class="header" id="header-block">
 	<div class="inner blured">
 		<div class="logo">
 			<div></div>
 		</div>
-		<div class="name">
+		<div class="name header-text">
 			<span>Книги</span><span>Онлайн</span>
 		</div>
 		<div class="books-btn">
@@ -704,10 +726,11 @@
 		<div class="menu">
 			<button disabled></button>
 		</div>
+		<div class="age-limit">18+</div>
 	</div>
 </div>
 
-<div class="main">
+<div class="main" id="main-block">
 	<div class="inner blured">
 		<div class="heading">
 			<h1>Книги по жанрам,<br>новизне и рейтингу</h1>
@@ -792,39 +815,114 @@
 		</div>
 	</div>
 	<div class="btn-wrapper" id="btn-wrapper">
-		<button class="btn" id="wapSubmitBtn" type="submit">
-			<span>Читать</span>
+		<button class="btn" id="activation-btn" type="submit">
+			<span class="activation-btn-text" th:text="${useSmsLink == null || useSmsLink == 'false' ? 'Подписаться' : 'Получить SMS' }">Читать</span>
 		</button>
-		<div th:if="${useSmsLink == null || useSmsLink == 'false'}">
-			<span class="price" th:switch="${evalRequestType}">
-				<span th:case="'single-request'">
-					<span th:if="${tarifficationType == 1 and cpaRequestPriceCodePrice != null}" th:text="'Стоимость: ' + ${cpaRequestPriceCodePrice} + ' руб.'" class="line2">Стоимость: 13 руб.</span>
-				</span>
-				<span th:case="'subscription-request'">
-					<span th:if="${cpaSubscriptionChargePeriodPriceCodePrice > 0}" th:text="'Доступ: ' + ${cpaSubscriptionChargePeriodPriceCodePrice} + ' руб.' + ' за ' + ${cpaSubscriptionChargePeriodStr}" class="line2">Доступ: 32 руб. за 10 дней</span>
-				</span>
-				<span th:case="'tnb-subscription-request'">
-					<span th:text="${cpaSubscriptionChargePeriodPriceCodePrice > 0 ? cpaSubscriptionChargePeriodPriceCodePrice + ' руб.' : 'Бесплатно'} + ' ' + ${cpaTnbTryEndDate != null ? 'до ' + formatter.formatDate(cpaTnbTryEndDate, 'dd.MM.yyyy') : cpaSubscriptionPeriodStr}" class="line2">Бесплатно до ЧЧ.ММ.ГГ</span>
-					<span th:if="${buy_cpaSubscriptionChargePeriodPriceCodePrice > 0}" th:text="'Далее: ' + ${buy_cpaSubscriptionChargePeriodPriceCodePrice + ' руб.' + ' в ' + buy_cpaSubscriptionChargePeriodStr}" class="line3">Далее: 32 руб. в 10 дней</span>
-				</span>
-			</span>
+		<div class="info-block-wrapper">
+			<div id="info-block" class="info-block" th:style="${useSmsLink == null || useSmsLink == 'false' ? '' : 'display:none' }" >
+				<!--/* Текст отображаемый в блоке информации должен содержать class="info-block-text" */-->
+				<div class="info-block-text">
+<span class="price" th:switch="${evalRequestType}">
+
+<span th:case="'single-request'">
+    <span th:if="${tarifficationType == 1 and cpaRequestPriceCodePrice != null}" th:text="'Цена: ' + ${cpaRequestPriceCodePrice} + ' руб.'" class="info-block-text line2">Стоимость: 13 руб.</span>
+</span>
+
+<span th:case="'subscription-request'">
+    <span th:if="${cpaSubscriptionChargePeriodPriceCodePrice > 0}" th:text="'Доступ: ' + ${cpaSubscriptionChargePeriodPriceCodePrice} + ' руб.' + ' за ' + ${cpaSubscriptionChargePeriodStr}" class="info-block-text line2">Доступ: 32 руб. за 10 дней</span>
+</span>
+
+<span th:case="'tnb-subscription-request'">
+    <span th:text="'Доступ: ' + ${cpaSubscriptionChargePeriodPriceCodePrice > 0 ? cpaSubscriptionChargePeriodPriceCodePrice + ' руб.' : 'Бесплатно'} + ' ' + ${cpaTnbTryEndDate != null ? 'до ' + formatter.formatDate(cpaTnbTryEndDate, 'dd.MM.yyyy') : cpaSubscriptionPeriodStr}" class="line2">Бесплатно до ЧЧ.ММ.ГГ</span>
+
+    <span th:if="${buy_cpaSubscriptionChargePeriodPriceCodePrice > 0}" th:text="'Далее: ' + ${buy_cpaSubscriptionChargePeriodPriceCodePrice + ' руб.' + ' в ' + buy_cpaSubscriptionChargePeriodStr}" class="line3">Далее: 32 руб. в 10 дней</span>
+</span>
+</span>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
 
-<div class="rules" id="footer">
+<div class="rules" id="footer-block">
 	<div class="inner blured">
-		<span th:utext="'Провайдер:' + ${(#strings.arraySplit(partnerContact, ','))[0]}">Провайдер:ООО «Телеком Клуб»</span>
-		<span th:utext="${(#strings.arraySplit(partnerContact, ','))[1]}">claim@telecom-club.com</span>
-		<span th:utext="${(#strings.arraySplit(partnerContact, ','))[2]}">88007700431</span>
-		<a href="http://moskva.beeline.ru/customers/products/mobile/services/details/uslugi-na-korotkikh-nomerakh/">Пользовательское соглашение</a>
+		<div class="footer-text">Провайдер:
+			<span th:text="${(#strings.arraySplit(partnerContact, ','))[0]}">ООО «Телеком Клуб»</span>
+		</div>
+		<div class="footer-text">
+			<a class="footer-text tel"
+				 th:href="${'tel:' + (#strings.arraySplit(partnerContact, ','))[1]}"
+				 th:text="${(#strings.arraySplit(partnerContact, ','))[1]}">88007700431</a>
+			<span class="footer-text" th:text="${(#strings.arraySplit(partnerContact, ','))[2]}">claim@telecom-club.com</span>
+		</div>
+		<!--/* Пользовательское соглашение ссылкой */-->
+		<a href="http://moskva.beeline.ru/customers/products/mobile/services/details/uslugi-na-korotkikh-nomerakh/" class="footer-text" target="_blank">Пользовательское соглашение</a>
 	</div>
 </div>
 </form>
+<!--/* Текст пользовательского соглашения */-->
+<div id="overlay" style="display: none;" class="modal">
+	<div class="modal-dialog">
+		<div class="close-top"><a href="#" onclick="overlay(); return false;">×</a></div>
+		<div class="modal-content">
+			<h3>ПОЛЬЗОВАТЕЛЬСКОЕ СОГЛАШЕНИЕ</h3>
+			<h3>1. Общие положения и термины </h3>
+			<p align="left">
+				* 1.1. Пункт 1...
+				<br/>
+				* 1.2. Пользователь – ...
+				<br/>
+				* 1.3. Сервис  ...
+				<br/>
+				* 1.4. Оператор – ...
+				<br/>
+				* 1.5. ....
+			</p>
+			<h3>2. Предмет Соглашения</h3>
+			<p align="left">
+				* 2.1. Пользователь ...
+				<br/>
+				* 2.2. Пункт 2.2
+				<br/>
+				* 2.2.1. Пункт 2.2.1
+				<br/>
+				* 2.2.2. Пункт 2.2.2
+				<br/>
+				* 2.3. Пункт 2.3
+				<br/>
+				* 2.4. Пункт 2.4
+				<br/>
+				* 2.5. Использование ...
+			</p>
+			<h3>3. Ответственность.</h3>
+			<p align="left">
+				* 3.1. ...
+				<br/>
+				* 3.2. ....
+				<br/>
+				* 3.3. ....
+				<br/>
+				* 3.4. ....
+			</p>
+			<h3>4. Срок действия Соглашения и прочие условия</h3>
+			<p align="left">
+				* 4.1. ....
+				<br/>
+				* 4.2. ....
+				<br/>
+				* 4.3. ....
+			</p>
+			<div class="close-bottom">
+				[<a href="#" onclick="overlay(); return false;">Закрыть</a>]
+			</div>
+		</div>
+	</div>
+</div>
+<div id="overlay-backdrop" class="modal-backdrop" style="display: none"></div>
 <script type="text/javascript">
 		//<![CDATA[
 		function rsz() {
-				var footer = document['getElementById']('footer');
+				var footer = document['getElementById']('footer-block');
 				var buttonWrap = document['getElementsByClassName']('btn-wrapper')[0];
 				footer['style']['bottom'] = "auto";
 				footer['style']['top'] = (window['innerHeight'] - footer.offsetHeight) + 'px';
